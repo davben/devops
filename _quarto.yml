@@ -1,13 +1,14 @@
 project:
-  type:
-    website:
-      navbar:
-        background: primary
-        search: true
-        left:
-          - eda.qmd
-          - model.qmd 
+  type: website
   execute-dir: project
+
+website:
+  navbar:
+    background: primary
+    search: true
+    left:
+      - eda.qmd
+      - model.qmd 
 
 format:
   html:
