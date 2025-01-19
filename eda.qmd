@@ -1,0 +1,57 @@
+---
+title: "Penguins EDA"
+format: 
+  html:
+    code-fold: true
+editor: source
+---
+
+```{r setup, include = FALSE}
+library(palmerpenguins)
+library(dplyr)
+library(dbplyr)
+library(ggplot2)
+
+con <- DBI::dbConnect(
+  duckdb::duckdb(), 
+  dbdir = "my-db.duckdb"
+  )
+df <- dplyr::tbl(con, "penguins")
+```
+
+
+# Overview of penguin size and mass by species, sex and year
+```{r}
+df %>%
+  group_by(species, sex) %>%
+  summarise(
+    across(
+        ends_with("mm") | ends_with("g"),
+      \(x) mean(x, na.rm = TRUE)
+      )
+    ) %>%
+  dplyr::collect() %>%
+  knitr::kable()
+```
+
+
+# Relationship of bill depth and length in penguins
+
+```{r}
+df |> 
+  filter(!is.na(bill_length_mm), !is.na(bill_depth_mm)) |> 
+  ggplot(aes(bill_depth_mm, bill_length_mm)) +
+  geom_point(aes(colour = species)) +
+  geom_smooth(method = "lm", colour = "grey30", linetype = 4, formula = 'y ~ x') +
+  geom_smooth(aes(colour = species), method = lm, formula = 'y ~ x') +
+  scale_color_brewer(type = "qual") +
+  theme_minimal() +
+  theme(legend.justification = c(0,1),
+        legend.position = "inside",
+        legend.position.inside = c(0.05, 0.99)) +
+  labs(colour = "Species")
+```
+
+```{r}
+DBI::dbDisconnect(con)
+```
