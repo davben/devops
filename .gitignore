@@ -9,3 +9,4 @@ model.html
 data
 /.quarto/
 _site
+*.pem
